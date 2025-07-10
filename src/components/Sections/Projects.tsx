@@ -20,7 +20,6 @@ const Projects = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [showCode, setShowCode] = useState<Record<number, boolean>>({});
-  const [showInstructions, setShowInstructions] = useState<Record<number, boolean>>({});
 
   const filters = ['All', 'Python', 'JavaScript', 'Docker', 'AI/ML', 'Web'];
 
@@ -652,14 +651,7 @@ if __name__ == "__main__":
     ? allProjects 
     : allProjects.filter(project => project.category === selectedFilter);
 
-  const getRunInstructions = (project: Project) => {
-    if (project.category === 'Python') return 'Run with: python <filename>.py';
-    if (project.category === 'JavaScript') return 'Open in browser or run with: node <filename>.js';
-    if (project.category === 'Docker') return 'Run with: docker-compose up or docker run ...';
-    if (project.category === 'AI/ML') return 'Follow README or run with: python <filename>.py';
-    if (project.category === 'Web') return 'Deploy or run with: npm start / npm run dev';
-    return '';
-  };
+
 
   return (
     <section id="projects" className="py-20 bg-vintage-dark relative overflow-hidden">
@@ -721,18 +713,7 @@ if __name__ == "__main__":
                   <span key={t} className="px-3 py-1 rounded-full bg-vintage-gold/20 text-vintage-gold text-xs font-bold border border-vintage-gold/30">{t}</span>
                   ))}
                 </div>
-              {/* Run Instructions Toggle */}
-              <button
-                className="mt-2 mb-2 px-4 py-1 rounded-full bg-vintage-coral/20 text-vintage-coral font-bold text-xs border border-vintage-coral/40 hover:bg-vintage-coral/40 transition-all duration-200"
-                onClick={() => setShowInstructions((s) => ({ ...s, [project.id]: !s[project.id] }))}
-              >
-                {showInstructions[project.id] ? 'Hide Run Instructions' : 'Show Run Instructions'}
-              </button>
-              {showInstructions[project.id] && (
-                <div className="w-full bg-vintage-dark/80 text-vintage-gold p-3 rounded-lg mb-2 text-xs font-mono border border-vintage-gold/20 animate-glow">
-                  {getRunInstructions(project)}
-                </div>
-              )}
+
               {/* Show/Hide Code Toggle */}
               <button
                 className="mt-2 px-4 py-1 rounded-full bg-vintage-emerald/20 text-vintage-emerald font-bold text-xs border border-vintage-emerald/40 hover:bg-vintage-emerald/40 transition-all duration-200"
@@ -755,24 +736,6 @@ if __name__ == "__main__":
                     </motion.div>
                   )}
                 </AnimatePresence>
-              {['Python', 'AI/ML'].includes(project.category) && (
-                <a
-                  href={
-                    project.code.includes('streamlit') || project.code.includes('import')
-                      ? `https://replit.com/new/python3?code=${encodeURIComponent(project.code)}`
-                      : project.title.toLowerCase().includes('notebook') || project.title.toLowerCase().includes('agent')
-                      ? `https://colab.research.google.com/`
-                      : undefined
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 px-4 py-1 rounded-full bg-vintage-gold/20 text-vintage-gold font-bold text-xs border border-vintage-gold/40 hover:bg-vintage-gold/40 transition-all duration-200 block text-center"
-                  style={{ pointerEvents: project.code ? 'auto' : 'none', opacity: project.code ? 1 : 0.5 }}
-                  title="Run this project in a sandbox (if supported)"
-                >
-                  Run
-                </a>
-              )}
               </motion.div>
             ))}
         </div>
