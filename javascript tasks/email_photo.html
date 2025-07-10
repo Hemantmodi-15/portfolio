@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Capture & Send Photo via Email</title>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <style>
+    body { font-family: Arial; margin: 30px; text-align: center; }
+    video, canvas, img { margin: 10px auto; display: block; border: 1px solid #ccc; }
+    input, button { margin: 10px auto; padding: 10px; font-size: 1rem; width: 250px; }
+  </style>
+</head>
+<body>
+
+  <h2>📸 Capture Photo & Send via Email</h2>
+
+  <!-- Live camera feed -->
+  <video id="video" width="320" height="240" autoplay></video>
+
+  <!-- Photo preview -->
+  <canvas id="canvas" width="160" height="120" style="display:none;"></canvas>
+  <img id="preview" src="#" alt="Preview" style="display:none; max-width:100%;">
+
+  <!-- Capture button -->
+  <button id="capture">Capture Photo</button>
+
+  <!-- Email form -->
+  <form id="photo-form">
+    <input type="text" name="from_name" placeholder="Your Name"  required>
+    <input type="email" name="to_email" placeholder="Recipient Email" required>
+    <input type="hidden" name="image_base64" id="image_base64">
+    <button type="submit">Send Email</button>
+  </form>
+
+  <script>
+    // Initialize EmailJS
+    (function() {
+      emailjs.init("rF_VsYu5Kvnw4XYci"); // Replace with your actual public key
+    })();
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
+    const ctx = canvas.getContext('2d');
+
+    // Start webcam stream
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => alert("Camera Error: " + err));
+
+    // Capture image from video
+    document.getElementById('capture').addEventListener('click', () => {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('image/png');
+      document.getElementById('image_base64').value = imageData;
+
+      preview.src = imageData;
+      preview.style.display = "block";
+      preview.style.maxWidth = "160px"; // Optional
+
+      alert("✅ Photo captured and previewed.");
+    });
+
+    // Send via EmailJS
+    document.getElementById('photo-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if (!document.getElementById('image_base64').value) {
+        alert("⚠️ Please capture a photo first!");
+        return;
+      }
+
+      emailjs.sendForm("service_539ukbs", "template_uzrxmqd", this)
+        .then(() => alert("✅ Email sent successfully!"))
+        .catch(err => alert("❌ Email failed: " + JSON.stringify(err)));
+    });
+  </script>
+
+</body>
+</html>

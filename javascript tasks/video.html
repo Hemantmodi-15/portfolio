@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Recorder</title>
+  <style>
+    video {
+      border: 2px solid #000;
+      border-radius: 10px;
+      margin: 10px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Webcam Video Recorder</h2>
+
+  <video id="preview" width="320" height="240" autoplay muted></video>
+  <br>
+  <button onclick="startRecording()">Start Recording</button>
+  <button onclick="stopRecording()" disabled>Stop Recording</button>
+  <br><br>
+  <video id="recordedVideo" width="320" height="240" controls style="display: none;"></video>
+  <br>
+  <button id="saveBtn" style="display: none;" onclick="saveVideo()">Save Video</button>
+
+  <script>
+    let mediaRecorder;
+    let recordedBlobs = [];
+    let stream;
+
+    const preview = document.getElementById('preview');
+    const recordedVideo = document.getElementById('recordedVideo');
+    const startBtn = document.querySelector('button[onclick="startRecording()"]');
+    const stopBtn = document.querySelector('button[onclick="stopRecording()"]');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Access webcam
+    async function initCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        preview.srcObject = stream;
+      } catch (e) {
+        console.error('Error accessing webcam:', e);
+        alert('Webcam access is required.');
+      }
+    }
+
+    initCamera();
+
+    function startRecording() {
+      recordedBlobs = [];
+      let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+
+      try {
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (e) {
+        console.error('Exception while creating MediaRecorder:', e);
+        alert('Recording not supported in this browser.');
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          recordedBlobs.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const superBuffer = new Blob(recordedBlobs, { type: 'video/webm' });
+        recordedVideo.src = window.URL.createObjectURL(superBuffer);
+        recordedVideo.style.display = 'block';
+        saveBtn.style.display = 'inline-block';
+      };
+
+      mediaRecorder.start();
+      console.log('MediaRecorder started', mediaRecorder);
+
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    }
+
+    function stopRecording() {
+      mediaRecorder.stop();
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
+
+    function saveVideo() {
+      const blob = new Blob(recordedBlobs, { type: 'video/webm' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'recorded_video.webm';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

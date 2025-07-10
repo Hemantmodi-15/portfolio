@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Location Map</title>
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+      border: 2px solid black;
+      margin-top: 10px;
+    }
+    body {
+      font-family: Arial, sans-serif;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Google Maps Live Location Tracker</h2>
+  <button onclick="startTracking()">Start Tracking</button>
+  <div id="map"></div>
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+
+  <script>
+    let map;
+    let marker;
+    let watchID;
+
+    function initMap(lat, lng) {
+      const position = { lat: lat, lng: lng };
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: position,
+        zoom: 16,
+      });
+
+      marker = new google.maps.Marker({
+        position: position,
+        map: map,
+        title: "You are here",
+      });
+    }
+
+    function startTracking() {
+      if (navigator.geolocation) {
+        watchID = navigator.geolocation.watchPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            if (!map) {
+              initMap(lat, lng);
+            } else {
+              const newPos = { lat, lng };
+              marker.setPosition(newPos);
+              map.setCenter(newPos);
+            }
+          },
+          (error) => {
+            alert("Geolocation error: " + error.message);
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 10000,
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    }
+  </script>
+</body>
+</html>

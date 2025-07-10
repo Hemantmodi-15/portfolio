@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send SMS</title>
+</head>
+<body>
+  <h2>Send SMS via Device</h2>
+  <input type="text" id="number" placeholder="Enter phone number" />
+  <br><br>
+  <textarea id="message" placeholder="Enter message"></textarea>
+  <br><br>
+  <button onclick="sendSMS()">Send SMS</button>
+
+  <script>
+    function sendSMS() {
+      const number = document.getElementById("number").value.trim();
+      const message = encodeURIComponent(document.getElementById("message").value);
+      
+      if (!number || !message) {
+        alert("Please fill both fields.");
+        return;
+      }
+
+      const smsURL = `sms:${number}?body=${message}`;
+      window.location.href = smsURL;  // opens device SMS app
+    }
+  </script>
+</body>
+</html>

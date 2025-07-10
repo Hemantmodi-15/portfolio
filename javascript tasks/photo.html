@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Capture Photo</title>
+  <style>
+    video, canvas {
+      border: 2px solid black;
+      border-radius: 10px;
+      margin: 10px;
+      display: block;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Webcam Photo Capture</h2>
+
+  <!-- Webcam video feed -->
+  <video id="video" width="320" height="240" autoplay></video>
+  
+  <!-- Capture button -->
+  <button onclick="takePhoto()">Capture</button>
+  
+  <!-- Captured image -->
+  <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+  
+  <!-- Save button (initially hidden) -->
+  <button id="saveBtn" onclick="savePhoto()" style="display: none;">Save Photo</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Access webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
+      })
+      .catch((err) => {
+        console.error("Error accessing the camera: ", err);
+      });
+
+    // Capture photo
+    function takePhoto() {
+      canvas.style.display = 'block';
+      saveBtn.style.display = 'inline-block';
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+
+    // Save photo
+    function savePhoto() {
+      const link = document.createElement('a');
+      link.download = 'photo.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>

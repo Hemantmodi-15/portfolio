@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>📧 Fetch Last Gmail Email</title>
+  <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+  <h2>📬 Your Last Email</h2>
+  <button onclick="signIn()">🔓 Sign in with Google</button>
+  <pre id="output">Waiting for sign-in...</pre>
+
+  <script>
+    // ⛔ Replace with your real OAuth 2.0 Client ID
+    const CLIENT_ID = '48295895351-g525j85sgtp2h515a8ttd1kphmgu45n1.apps.googleusercontent.com'; 
+    const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+
+    function signIn() {
+      gapi.load('client:auth2', () => {
+        gapi.auth2.init({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          cookie_policy: 'single_host_origin'
+        }).then(() => {
+          gapi.auth2.getAuthInstance().signIn().then(() => {
+            gapi.client.load('gmail', 'v1').then(fetchLastEmail);
+          }).catch(err => {
+            document.getElementById("output").textContent =
+              '❌ Sign-in error: ' + err.error;
+          });
+        });
+      });
+    }
+
+    function fetchLastEmail() {
+      gapi.client.gmail.users.messages.list({
+        userId: 'me',
+        maxResults: 1,
+        labelIds: ['INBOX'],
+      }).then(res => {
+        if (!res.result.messages || res.result.messages.length === 0) {
+          document.getElementById("output").textContent = "📭 No emails found in your inbox.";
+          return;
+        }
+
+        const msgId = res.result.messages[0].id;
+        gapi.client.gmail.users.messages.get({
+          userId: 'me',
+          id: msgId
+        }).then(msg => {
+          const headers = msg.result.payload.headers;
+          const from = headers.find(h => h.name === "From")?.value || "(Unknown)";
+          const subject = headers.find(h => h.name === "Subject")?.value || "(No Subject)";
+          const snippet = msg.result.snippet || "(No Snippet)";
+
+          document.getElementById("output").textContent =
+            `📨 From: ${from}\n📌 Subject: ${subject}\n📝 Snippet:\n${snippet}`;
+        }).catch(err => {
+          document.getElementById("output").textContent =
+            '❌ Failed to fetch email: ' + err.message;
+        });
+      }).catch(err => {
+        document.getElementById("output").textContent =
+          '❌ Failed to list emails: ' + err.message;
+      });
+    }
+  </script>
+</body>
+</html>
