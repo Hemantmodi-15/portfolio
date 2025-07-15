@@ -148,7 +148,7 @@ const Skills = () => {
           className="mt-16 text-center"
         >
           <div className="glass p-8 rounded-2xl border border-gaming-gold/30 gaming-card">
-            <h3 className="text-2xl font-bold text-gaming-text mb-6 font-gaming">[PLAYER STATS]</h3>
+            <h3 className="text-2xl font-bold text-gaming-text mb-6 font-gaming">[CODER STATS]</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-gaming-gold mb-2 font-gaming neon-text">85%</div>
